@@ -62,23 +62,153 @@
   \tableofcontents[hideallsubsections]
 \end{frame}
 
-\section{Warm up}
+\section{Isomorphisms}
 \begin{frame}[fragile]
-  \frametitle{Placeholder Example}
   \begin{lstlisting}[language=scala]
-    sealed trait Result[+A]
-    case object Loading extends Result[Nothng]
-    case class  Error(s : String) extends Result[Nothing]
-    case class Success[+A](a : A) extends Result[A]
+  sealed class Node(
+     open val name: String, 
+     open val parent: Directory?
+  )
 
-    def f[A] : Option[A] => Result[A] = {
-      case Some(a) => Success(a)
-      case _       => Error("invalid")
-    }
+  data class File(
+    override val name: String, 
+    override val parent: Directory?, 
+    val size: Long): Node(name, parent)
+
+  data class Directory(
+    override val name: String,
+    override val parent: Directory?,
+    val children: MutableList<Node>
+  ) : Node(name, parent)
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  file system is represented by an \emph{algebraic data type inductively defined}, which captures%
+  \footnote{Wait next slides for cardinality questions and isomorphic and not isomorphic representations}
+  \begin{itemize}
+    \item the recursive nature of the filesystem 
+    \item separating attributes of files and attributes of directories (\ie, size) 
+  \end{itemize}
+\end{frame}
+\begin{frame}[fragile]
+  \begin{itemize}
+    \item Blend of domain modelling and implementation details 
+    \item model design polluted by / coflated with elements to support the underlying implementation (\ie, leaking implementation choices to the consumer space)
+  \end{itemize} 
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{lstlisting}[language=scala]
+data class Node(
+  val name: String,
+  val size: Long?,
+  val children: MutableList<Node>?,
+  val isFile : Boolean, 
+  val parent: Directory?
+)
+\end{lstlisting}
+\end{frame}
+\begin{frame}[fragile]
+\begin{lstlisting}[language=scala]
+sealed interface Node
+
+data class File(
+  val name: String,
+  val size: Long
+) : Node
+
+data class Directory(
+  val name: String,
+  val children: List<Node>
+) : Node
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{lstlisting}[language=haskell]
+  data FileSystem
+    = File FileName Size
+    | Directory DirectoryName [FileSystem]
+    deriving (Eq, Show)
+  \end{lstlisting}
+\end{frame}
+\begin{frame}[fragile]
+  \begin{lstlisting}[language=scala]
+  enum FileSystem:
+    case File(
+      name: FileName,
+      size: Size)
+    case Directory(
+      name: DirectoryName, 
+      children: List[FileSystem])
+  \end{lstlisting}
+\end{frame}
+\begin{frame}[fragile]
+  \begin{lstlisting}[language=haskell]
+  data Rose a = Rose a [Rose a] 
+  data Tree1 a = Leaf1 a | Node1 [Tree1 a] 
+  data Tree2 a = Leaf2 a | Node2 (NonEmpty (Tree2 a)) 
+  data Tree3 a = Leaf3 a | Branch (Tree3 a) (Tree3 a) 
+  data Tree4 a = Empty | Node4 (a, Tree4 a , Tree4 a) 
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{lstlisting}[language=haskell]
+  data FileSystem
+    = File Size
+    | Directory (Map Name FileSystem)
+    deriving (Eq, Show)
   \end{lstlisting}
 \end{frame}
 
 
+\begin{frame}[fragile]
+  \begin{itemize} 
+    \item inductive types and custom data structures (``tree'' / boolean blindness)
+    \item isomorphic and non-isomorphic representations 
+    \item encoding of constrains (eg, uniqueness of the names)
+    \item redundancy and data integrity 
+  \end{itemize}
+\end{frame}
+
+
+\section{Algebra of operations}
+
+
+\begin{frame}[fragile]
+\begin{lstlisting}[language=haskell]
+
+data FileSystem
+
+file :: Name -> Size -> FileSystem
+directory :: Name -> [FileSystem] -> FileSystem 
+
+du :: FileSystem -> Size 
+pretty :: FileSystem -> Doc 
+duDir :: FileSystem -> [(Name, Size)]
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \begin{lstlisting}[language=haskell]
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{lstlisting}[language=haskell]
+  \end{lstlisting}
+\end{frame}
+\begin{frame}[fragile]
+  \begin{lstlisting}[language=haskell]
+  \end{lstlisting}
+\end{frame}
+\begin{frame}[fragile]
+  \begin{lstlisting}[language=haskell]
+  \end{lstlisting}
+\end{frame}
 \plain{Questions?}
 
 %\begin{frame}[allowframebreaks] {References}
@@ -87,8 +217,12 @@
 %\end{frame}
 
 \end{document}
-%% Useful for copy pasting. Would be better to just have snippets
 \begin{frame}[fragile]
+  \begin{lstlisting}[language=haskell]
+  \end{lstlisting}
+\end{frame}
+%% Useful for copy pasting. Would be better to just have snippets
+\begin{frame}[fragile
   \frametitle{}
   \begin{lstlisting}[language=scala, basicstyle=\ttfamily]
   \end{lstlisting}
